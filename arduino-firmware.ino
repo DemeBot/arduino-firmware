@@ -1,69 +1,68 @@
+#include <stdio.h>
+#include <string.h>
+#include <Stepper.h>
 #include <AccelStepper.h>
-#include <MultiStepper.h>
 #include "pins.h"
 #include "constants.h"
 #include "functions.h"
 #include "setup.h"
 
-void loop () {
-  long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    if (flag) {
-      Pump_On();
-      Vac_On();
-      previousMillis = currentMillis;
-      flag = false;
+void loop() {
+  // When Serial input received
+  if (Serial.available() > 0) {
+    
+    Serial.println("Input received");
+
+    // Read and Manipulate incoming data
+    String input_string = Serial.readString(); // read the incoming data as string
+    for(int i = 0; i < input_string.length(); i++) { input_string[i] = toupper(input_string[i]); } // capitalize input string
+
+    // Parse out incoming data into a command, parameter 1, parameter 2, and parameter 3
+    String cmd = getValue(input_string,' ',0);
+    String param1 = getValue(input_string,' ',1);
+    String param2 = getValue(input_string,' ',2);
+    String param3 = getValue(input_string,' ',3);
+    String paramArray[] = {param1, param2, param3};
+//    Serial.println("Command: " + cmd);
+//    Serial.println("Parameter 1: " + paramArray[0]);
+//    Serial.println("Parameter 2: " + paramArray[1]);
+//    Serial.println("Parameter 3: " + paramArray[2]);
+//    Serial.println();
+
+    // When cmd = gcode command, perform appropriate action.
+    if (cmd == "G28"){
+      homing();
+    }
+    else if (cmd == "G161"){  // move to min position
+      Serial.println("HOMING MIN");
+    }
+    else if (cmd == "G162"){  // move to max position
+      Serial.println("HOMING MAX");
+    }
+    else if (cmd == "G00"){   // move tool to position. Takes in 3 parameters: Radius (R), Theta (T), Z (Z)
+      move_motors(paramArray);
+    }      
+    else if (cmd == "G04"){   // sets delay time in milliseconds. Takes 1 Parameter: Pause (P)
+      wait(paramArray);
+    }
+    else if (cmd == "M126"){  // opens relay. Takes 1 Parameter: Relay_Number (T)
+      relay_open(paramArray);
+    }
+    else if (cmd == "M127"){  // closes relay. Takes 1 Parameter: Relay_Number (T) 
+      relay_close(paramArray);
+    }
+    else if (cmd == "M0"){    // stops all robot functions.
+      Serial.println("STOPPED, enter any string to continue.");
+      while(true){
+        if (Serial.available() > 0){
+          break;
+        }
+      }
     }
     else {
-      Pump_Off();
-      Vac_Off();
-      previousMillis = currentMillis;
-      flag = true;
+      Serial.println("Not a valid command");
     }
+    Serial.println("\nREADY FOR INPUT!");
   }
 
-  if (digitalRead(R_MIN_PIN)){
-    R_Dir_In();
-    LED_Flash();
-  }
-  if (digitalRead(R_MAX_PIN)){
-    R_Dir_Out();
-    LED_Flash();
-  }
-  if (digitalRead(Z_MIN_PIN)){
-    Z_Dir_Up();
-    LED_Flash();
-  }
-  if (digitalRead(Z_MAX_PIN)){
-    Z_Dir_Down();
-    LED_Flash();
-  }
-  if (digitalRead(THETA_MIN_PIN)){
-    DC_Motor_Counterclockwise();
-    LED_Flash();
-  }
-  if (digitalRead(THETA_MAX_PIN)){    
-    DC_Motor_Clockwise();
-    LED_Flash();
-  }
-
-  Step_R();
-  Step_Z();
-
-
-//  if (R_STEPPER.distanceToGo() == 0){
-//    if (R_STEPPER.currentPosition() == 0)
-//      R_STEPPER.moveTo(R_End);
-//    else
-//      R_STEPPER.moveTo(0);
-//  }
-//  R_STEPPER.run();
-//
-//  if (Z_STEPPER.distanceToGo() == 0){
-//    if (Z_STEPPER.currentPosition() == 0)
-//      Z_STEPPER.moveTo(Z_Bottom);
-//    else
-//      Z_STEPPER.moveTo(0);
-//  }
-//  Z_STEPPER.run();
 }

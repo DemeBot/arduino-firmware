@@ -1,5 +1,3 @@
-// ################################### SETUP ######################################
-
 void setup() {
   pinMode(R_STEP_PIN              , OUTPUT);
   pinMode(R_DIR_PIN               , OUTPUT);
@@ -15,29 +13,32 @@ void setup() {
 
   pinMode(THETA_LEFT_PIN          , OUTPUT);
   pinMode(THETA_RIGHT_PIN         , OUTPUT);
-pinMode(THETA_MIN_PIN             , INPUT_PULLUP);
-  pinMode(THETA_MAX_PIN            , INPUT_PULLUP);
+  pinMode(THETA_MIN_PIN           , INPUT_PULLUP);
+  pinMode(THETA_MAX_PIN           , INPUT_PULLUP);
 
   pinMode(PUMP_PIN                , OUTPUT);
   pinMode(VAC_PIN                 , OUTPUT);
 
+  attachInterrupt(digitalPinToInterrupt(THETA_CLOCKWISE), clockwise, RISING);
+  attachInterrupt(digitalPinToInterrupt(THETA_COUNTER_CLOCKWISE), counter_clockwise, RISING);
+  
   pinMode(LED_PIN                 , OUTPUT);
 
   digitalWrite(R_ENABLE_PIN       , LOW);
   digitalWrite(Z_ENABLE_PIN       , LOW);
+  digitalWrite(PUMP_PIN           , HIGH);
+  digitalWrite(VAC_PIN            , HIGH);
+  Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB
+  }
 
   R_STEPPER.setMaxSpeed(rMaxSpeed);
   R_STEPPER.setAcceleration(rMaxAcceleration);
-
-  Z_STEPPER.setMaxSpeed(zMaxSpeed);
-  Z_STEPPER.setAcceleration(zMaxAcceleration);
+  Z_STEPPER.setMaxSpeed(rMaxSpeed);
+  Z_STEPPER.setAcceleration(rMaxAcceleration);
   
-//  R_Stepper_Home();
-//  delay(500);
-//  R_Stepper_End();
-//     
-//  Z_Stepper_Bottom();
-//  delay(500);
-//  Z_Stepper_Top();
-    DC_Motor_Counterclockwise();
+  Serial.println("Arduino is up and running.");
+  homing();
+  Serial.println("READY FOR INPUT!");
 }

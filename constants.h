@@ -10,10 +10,10 @@ bool flag = true;
 
 // AccelStepper Constants
 const int homingStepCount   = 10;
-const int rMaxSpeed         = 1000;
-const int zMaxSpeed         = 500;
+const int rMaxSpeed         = 1500;
+const int zMaxSpeed         = 1000;
 const int rMaxAcceleration  = 500;
 const int zMaxAcceleration  = 500;
 
-int Z_Bottom = 0;
+int z_top = 0;
 int R_End = 0;

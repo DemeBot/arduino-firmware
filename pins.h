@@ -3,8 +3,8 @@
 #define R_STEP_PIN         54   // X STEPPER PORT
 #define R_DIR_PIN          55   // X STEPPER PORT
 #define R_ENABLE_PIN       38   // X STEPPER PORT
-#define R_MIN_PIN           3   // X STEPPER PORT
-#define R_MAX_PIN           2   // X STEPPER PORT
+#define R_MAX_PIN           3   // X STEPPER PORT
+#define R_MIN_PIN           2   // X STEPPER PORT
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
@@ -17,6 +17,9 @@
 #define Z_ENABLE_PIN       62
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
+
+#define THETA_CLOCKWISE             20
+#define THETA_COUNTER_CLOCKWISE     21
 
 #define E_STEP_PIN         26
 #define E_DIR_PIN          28
