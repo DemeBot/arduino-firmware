@@ -39,6 +39,5 @@ void setup() {
   Z_STEPPER.setAcceleration(rMaxAcceleration);
   
   Serial.println("Arduino is up and running.");
-  homing();
   Serial.println("READY FOR INPUT!");
 }
