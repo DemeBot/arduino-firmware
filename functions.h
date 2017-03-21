@@ -130,7 +130,7 @@ void move_motors(String paramArray[]){
 
   // Movement of Radius
   if (radius != -1){
-    if (radius > 0 && radius <= 3100 && R_STEPPER.currentPosition() <= 3100){
+    if (Z_STEPPER.currentPosition() < 3000 && R_STEPPER.currentPosition() <= 3100){
       Z_STEPPER.runToNewPosition(3000); //  move z to get out of soil
     }
     if (radius > 3100 && R_STEPPER.currentPosition() <= 3100){
