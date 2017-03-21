@@ -130,7 +130,12 @@ void move_motors(String paramArray[]){
 
   // Movement of Radius
   if (radius != -1){
-    Z_STEPPER.runToNewPosition(z_top);
+    if (radius > 0 && radius <= 3100 && R_STEPPER.currentPosition() <= 3100){
+      Z_STEPPER.runToNewPosition(3000); //  move z to get out of soil
+    }
+    if (radius > 3100 && R_STEPPER.currentPosition() <= 3100){
+      Z_STEPPER.runToNewPosition(z_top); //  move z to top to prevent running into assembly
+    }
     if (radius >= 0){
       if (radius > R_End){
         R_STEPPER.runToNewPosition(R_End);
@@ -151,17 +156,21 @@ void move_motors(String paramArray[]){
 
   // Movement of Z
   if (z != -1){
-    if (z >= 0){
-      if (z > z_top) {
-        Z_STEPPER.runToNewPosition(z_top);
+    if (z > z_top) {
+      Z_STEPPER.runToNewPosition(z_top);
+    }
+    else {
+      if (z < 0){
+        z = 0;
       }
-      else {
+      if (R_STEPPER.currentPosition() > 3100){
+        Z_STEPPER.runToNewPosition(4500);
+      }
+      else{
         Z_STEPPER.runToNewPosition(z);
       }
     }
-    else if (z < 0){
-      Z_STEPPER.runToNewPosition(0);
-    }
+
   }
 }
 
@@ -221,21 +230,25 @@ void wait(String paramArray[]){
 void homing(){
   Z_Stepper_Top();
   R_Stepper_Home();
-  Serial.println("Getting radial distance.");
+  Serial.print("Homing Radius. ");
+  delay(1000);
   R_Stepper_End();
+  R_STEPPER.runToNewPosition(0);
+  Serial.println("[COMPLETE]");
+  Serial.print("Homing Z. ");
+  Z_Stepper_Bottom();
+  delay(1000);
+  Z_Stepper_Top();
+  Z_STEPPER.runToNewPosition(z_top);
+  Serial.println("[COMPLETE]");
+  Serial.print("Homing Theta. ");
+  Serial.println("[COMPLETE]");
+  Serial.println();
   Serial.print("Radial length = ");
   Serial.println(R_End);
-  R_STEPPER.runToNewPosition(0);
-  Serial.println("Calculating radial distance complete.");
-  Serial.println("Getting Z distance");
-  Z_Stepper_Bottom();
-  Z_Stepper_Top();
   Serial.print("Z length = ");
   Serial.println(z_top);
-  Z_STEPPER.runToNewPosition(z_top);
-  Serial.println("Calculating Z distance complete.");
-  Serial.println("Homing Theta");
-  Serial.println("Homing Theta Complete.");
+  Serial.println();
 }
 
 

@@ -10,12 +10,11 @@
 void loop() {
   // When Serial input received
   if (Serial.available() > 0) {
-    
-    Serial.println("Input received");
 
     // Read and Manipulate incoming data
     String input_string = Serial.readString(); // read the incoming data as string
     for(int i = 0; i < input_string.length(); i++) { input_string[i] = toupper(input_string[i]); } // capitalize input string
+    Serial.println("Input received: " + input_string);
 
     // Parse out incoming data into a command, parameter 1, parameter 2, and parameter 3
     String cmd = getValue(input_string,' ',0);
