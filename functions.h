@@ -21,11 +21,13 @@ void Vac_Off(){
 void DC_Motor_Clockwise(){
   digitalWrite(THETA_LEFT_PIN     , LOW);
   digitalWrite(THETA_RIGHT_PIN    , HIGH);
+  dc_direction = "CLOCKWISE";
 }
 
 void DC_Motor_Counterclockwise(){
   digitalWrite(THETA_LEFT_PIN     , HIGH);
   digitalWrite(THETA_RIGHT_PIN    , LOW);
+  dc_direction = "COUNTER CLOCKWISE";
 }
 
 void DC_Motor_Stop(){
@@ -225,6 +227,24 @@ void wait(String paramArray[]){
     Serial.println(" milliseconds.");
     delay(pause);
   }
+}
+
+void r_min(){
+  R_STEPPER.stop();
+  R_STEPPER.setCurrentPosition(0);
+}
+
+void r_max(){
+  R_STEPPER.stop();
+}
+
+void z_min(){
+  Z_STEPPER.stop();
+}
+
+void z_max(){
+  Z_STEPPER.stop();
+  Z_STEPPER.setCurrentPosition(0);
 }
 
 void homing(){

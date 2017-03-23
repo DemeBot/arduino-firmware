@@ -21,6 +21,10 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt(THETA_CLOCKWISE), clockwise, RISING);
   attachInterrupt(digitalPinToInterrupt(THETA_COUNTER_CLOCKWISE), counter_clockwise, RISING);
+  attachInterrupt(digitalPinToInterrupt(R_MIN_PIN), r_min, RISING);
+  attachInterrupt(digitalPinToInterrupt(R_MAX_PIN), r_max, RISING);
+  attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), z_min, RISING);
+  attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), z_max, RISING);
   
   pinMode(LED_PIN                 , OUTPUT);
 
@@ -28,16 +32,14 @@ void setup() {
   digitalWrite(Z_ENABLE_PIN       , LOW);
   digitalWrite(PUMP_PIN           , HIGH);
   digitalWrite(VAC_PIN            , HIGH);
-  Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB
-  }
 
   R_STEPPER.setMaxSpeed(rMaxSpeed);
   R_STEPPER.setAcceleration(rMaxAcceleration);
   Z_STEPPER.setMaxSpeed(rMaxSpeed);
   Z_STEPPER.setAcceleration(rMaxAcceleration);
   
+  Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+  while (!Serial) { ; } // wait for serial port to connect. Needed for native USB
   Serial.println("Arduino is up and running.");
   Serial.println("READY FOR INPUT!");
 }

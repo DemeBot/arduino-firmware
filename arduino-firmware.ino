@@ -50,6 +50,15 @@ void loop() {
     else if (cmd == "M127"){  // closes relay. Takes 1 Parameter: Relay_Number (T) 
       relay_close(paramArray);
     }
+    else if (cmd == "D00"){  // stop dc motors 
+      DC_Motor_Stop();
+    }
+    else if (cmd == "D01"){  // move dc motors counter clockwise 
+      DC_Motor_Counterclockwise();
+    }
+    else if (cmd == "D02"){  // move dc motors clockwise 
+      DC_Motor_Clockwise();
+    }
     else if (cmd == "M0"){    // stops all robot functions.
       Serial.println("STOPPED, enter any string to continue.");
       while(true){
@@ -64,4 +73,11 @@ void loop() {
     Serial.println("\nREADY FOR INPUT!");
   }
 
+  if(digitalRead(THETA_MIN_PIN) && dc_direction == "COUNTER CLOCKWISE"){
+    DC_Motor_Stop();
+  }
+
+  if(digitalRead(THETA_MAX_PIN) && dc_direction == "CLOCKWISE"){
+    DC_Motor_Stop();
+  }
 }

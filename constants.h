@@ -17,3 +17,4 @@ const int zMaxAcceleration  = 500;
 
 int z_top = 0;
 int R_End = 0;
+String dc_direction = "STOP";
