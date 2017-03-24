@@ -2,6 +2,7 @@
 #include <string.h>
 #include <Stepper.h>
 #include <AccelStepper.h>
+#include <math.h>
 #include "pins.h"
 #include "constants.h"
 #include "functions.h"
@@ -22,21 +23,10 @@ void loop() {
     String param2 = getValue(input_string,' ',2);
     String param3 = getValue(input_string,' ',3);
     String paramArray[] = {param1, param2, param3};
-//    Serial.println("Command: " + cmd);
-//    Serial.println("Parameter 1: " + paramArray[0]);
-//    Serial.println("Parameter 2: " + paramArray[1]);
-//    Serial.println("Parameter 3: " + paramArray[2]);
-//    Serial.println();
 
     // When cmd = gcode command, perform appropriate action.
     if (cmd == "G28"){
       homing();
-    }
-    else if (cmd == "G161"){  // move to min position
-      Serial.println("HOMING MIN");
-    }
-    else if (cmd == "G162"){  // move to max position
-      Serial.println("HOMING MAX");
     }
     else if (cmd == "G00"){   // move tool to position. Takes in 3 parameters: Radius (R), Theta (T), Z (Z)
       move_motors(paramArray);
@@ -59,16 +49,17 @@ void loop() {
     else if (cmd == "D02"){  // move dc motors clockwise 
       DC_Motor_Clockwise();
     }
-    else if (cmd == "M0"){    // stops all robot functions.
-      Serial.println("STOPPED, enter any string to continue.");
-      while(true){
-        if (Serial.available() > 0){
-          break;
-        }
-      }
+    else if (cmd == "M136"){  // Get current setting values 
+      Print_Settings();
+    }
+    else if (cmd == "M114"){  // Get current position 
+      Print_Status();
+    }
+    else if (cmd == "HELP"){  // Get current position 
+      Print_Commands();
     }
     else {
-      Serial.println("Not a valid command");
+      Serial.println("Not a valid command. Enter Help for Commands.");
     }
     Serial.println("\nREADY FOR INPUT!");
   }
@@ -80,4 +71,7 @@ void loop() {
   if(digitalRead(THETA_MAX_PIN) && dc_direction == "CLOCKWISE"){
     DC_Motor_Stop();
   }
+
+  Serial.print("Angle: ");
+  Serial.println(floor(theta_current/theta_max)*180);
 }

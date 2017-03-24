@@ -18,8 +18,8 @@
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
 
-#define THETA_CLOCKWISE             20
-#define THETA_COUNTER_CLOCKWISE     21
+#define ENCODER_A             20
+#define ENCODER_B     21
 
 #define E_STEP_PIN         26
 #define E_DIR_PIN          28

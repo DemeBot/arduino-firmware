@@ -1,7 +1,5 @@
 // ################################### FUNCTIONS ######################################
 
-volatile unsigned int counter = 0; // This variable will increase or decrease depending on the rotation of encoder
-
 void Pump_On(){
   digitalWrite(PUMP_PIN           , HIGH);
 }
@@ -67,29 +65,6 @@ void R_Stepper_End(){
   R_End = R_STEPPER.currentPosition();
 }
 
-
-// clockwise rotation
-void clockwise() {
-  // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
-  // Check pin 3 to determine the direction
-  if (digitalRead(3) == LOW) {
-    counter++;
-  } else {
-    if (counter > 0) counter--;
-  }
-}
-
-// counter-clockwise rotation
-void counter_clockwise() {
-  // ai0 is activated if DigitalPin nr 3 is going from LOW to HIGH
-  // Check with pin 2 to determine the direction
-  if (digitalRead(2) == LOW) {
-    if (counter > 0) counter--;
-  } else {
-    counter++;
-  }
-}
-
 // get values from serial input string
 String getValue(String data, char separator, int index)
 {
@@ -153,7 +128,16 @@ void move_motors(String paramArray[]){
 
   // Movement of Theta
   if (theta != -1){
-    Serial.println("Moving Theta");
+    if (theta > 180) theta = 180;
+    if (theta < 0) theta = 0;
+    if (theta < theta_current){
+      DC_Motor_Clockwise();
+      while (theta != theta_current){}
+    }
+    else if (theta > theta_current){
+      DC_Motor_Counterclockwise();
+      while (theta != theta_current){}
+    }
   }
 
   // Movement of Z
@@ -247,28 +231,141 @@ void z_max(){
   Z_STEPPER.setCurrentPosition(0);
 }
 
-void homing(){
-  Z_Stepper_Top();
-  R_Stepper_Home();
+void set_speed(String paramArray[]){
+  int r_speed = -1;
+  int z_speed = -1;
+  for (int i = 0; i < 3; i++){
+    if (paramArray[i][0] == 'Z'){
+      z_speed = getParameterValue(paramArray[i]);
+    }
+    else if (paramArray[i][0] == 'R'){
+      r_speed = getParameterValue(paramArray[i]);
+    }
+  }
+  if (r_speed != -1){
+    if (r_speed > 0 and r_speed <= 100){
+      rMaxSpeed = r_default_speed * (r_speed/100);
+    }
+  }
+  if (z_speed != -1){
+    zMaxSpeed = z_speed;
+  }
+  Serial.println();
+  Serial.print("R Speed = ");
+  Serial.println(rMaxSpeed);
+  Serial.print("Z Speed = ");
+  Serial.println(zMaxSpeed);
+  Serial.println();
+}
+
+// clockwise rotation
+void clockwise() {
+  // Check pin 21 to determine the direction
+  if (digitalRead(ENCODER_B) == LOW) {
+    theta_current++;
+  } else {
+    if (theta_current > 0) theta_current--;
+  }
+}
+
+// counter-clockwise rotation
+void counter_clockwise() {
+  // Check with pin 20 to determine the direction
+  if (digitalRead(ENCODER_A) == LOW) {
+    if (theta_current > 0) theta_current--;
+  } else {
+    theta_current++;
+  }
+}
+
+void Home_Theta(){
+  Serial.print("Homing Theta. ");
+  while(!digitalRead(THETA_MIN_PIN)){
+    DC_Motor_Counterclockwise();
+  }
+
+  theta_current = 0;
+
+  while(!digitalRead(THETA_MAX_PIN)){
+    DC_Motor_Clockwise();
+  }
+
+  theta_max = theta_current;
+  Serial.println("[COMPLETE]");
+}
+
+void Home_Radius(){
   Serial.print("Homing Radius. ");
+  R_Stepper_Home();
   delay(1000);
   R_Stepper_End();
   R_STEPPER.runToNewPosition(0);
   Serial.println("[COMPLETE]");
+}
+
+void Home_Z(){
   Serial.print("Homing Z. ");
   Z_Stepper_Bottom();
   delay(1000);
   Z_Stepper_Top();
-  Z_STEPPER.runToNewPosition(z_top);
   Serial.println("[COMPLETE]");
-  Serial.print("Homing Theta. ");
-  Serial.println("[COMPLETE]");
+}
+
+void Print_Settings(){
   Serial.println();
-  Serial.print("Radial length = ");
+  Serial.print("Radial length: ");
   Serial.println(R_End);
-  Serial.print("Z length = ");
+  Serial.print("Theta length: ");
+  Serial.println(theta_max);
+  Serial.print("Z length: ");
   Serial.println(z_top);
+  Serial.print("R Speed: ");
+  Serial.println(rMaxSpeed);
+  Serial.print("Z Speed: ");
+  Serial.println(zMaxSpeed);
+  Serial.print("R Acceleration: ");
+  Serial.println(rMaxAcceleration);
+  Serial.print("Z Acceleration: ");
+  Serial.println(zMaxAcceleration);
   Serial.println();
+}
+
+int theta_to_degrees(){
+  return floor(theta_current/theta_max)*180;
+}
+
+void Print_Status(){
+  Serial.println();
+  Serial.print("Radius Position: ");
+  Serial.println(R_STEPPER.currentPosition());
+  Serial.print("Theta Position: ");
+  Serial.println(theta_to_degrees());
+  Serial.print("Z Position: ");
+  Serial.println(Z_STEPPER.currentPosition());
+  Serial.println();
+}
+
+void Print_Commands(){
+  Serial.println("G28: Homing Sequence");
+  Serial.println("G00 [r#] [t#] [z#]: Move Command.");
+  Serial.println("G04 P#: Delay command where P# is time in milliseconds");
+  Serial.println("M126 T#: Close Relay where T# is relay number");
+  Serial.println("M127 T#: Open Relay where T# is a relay number");
+  Serial.println("D00: DC motors stop");
+  Serial.println("D01: DC motors counter-clockwise");
+  Serial.println("D01: DC motors clockwise");
+  Serial.println("M136: Print current setting values");
+  Serial.println("M114: Print current positions");
+  Serial.println("HELP: Print list of commands");
+}
+
+void homing(){
+  Z_Stepper_Top();// move z to top to ensure it doesn't hit anything while moving radius
+  Home_Radius();  // home the radial axis
+  Home_Z();       // home the z axis
+  Home_Theta();   // home theta
+  Print_Settings();
+  Print_Status();
 }
 
 
