@@ -28,6 +28,18 @@ void loop() {
     if (cmd == "G28"){
       homing();
     }
+    else if (cmd == "G29"){ // home just radius
+      Home_Radius();
+    }
+    else if (cmd == "G30"){ // home just theta
+      Home_Theta();
+    }
+    else if (cmd == "G31"){ // home just z
+      Home_Z();
+    }
+    else if (cmd == "G98"){ // return z to top
+      Z_Stepper_Top();
+    }
     else if (cmd == "G00"){   // move tool to position. Takes in 3 parameters: Radius (R), Theta (T), Z (Z)
       move_motors(paramArray);
     }      
@@ -55,6 +67,9 @@ void loop() {
     else if (cmd == "M114"){  // Get current position 
       Print_Status();
     }
+    else if (cmd == "W00"){  // Get current position 
+      Run_Water(paramArray);
+    }
     else if (cmd == "HELP"){  // Get current position 
       Print_Commands();
     }
@@ -71,7 +86,4 @@ void loop() {
   if(digitalRead(THETA_MAX_PIN) && dc_direction == "CLOCKWISE"){
     DC_Motor_Stop();
   }
-
-  Serial.print("Angle: ");
-  Serial.println(floor(theta_current/theta_max)*180);
 }

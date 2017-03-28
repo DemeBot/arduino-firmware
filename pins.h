@@ -18,8 +18,8 @@
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
 
-#define ENCODER_A             20
-#define ENCODER_B     21
+#define ENCODER_A          20
+#define ENCODER_B          21
 
 #define E_STEP_PIN         26
 #define E_DIR_PIN          28
@@ -50,8 +50,8 @@
 #define AUX14              27
 #define AUX13              29
 #define RELAY_8_PIN        31   // aux 12
-#define VAC_PIN            33   // aux 11; relayPin7
-#define PUMP_PIN           35   // aux 10; relayPin6
+#define VAC_PIN            35   // aux 11; relayPin7
+#define PUMP_PIN           33   // aux 10; relayPin6
 #define RELAY_5_PIN        37   // aux 9
 #define RELAY_4_PIN        39   // aux 8
 #define RELAY_3_PIN        41   // aux 7

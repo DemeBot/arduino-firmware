@@ -1,11 +1,14 @@
 // ################################### FUNCTIONS ######################################
+float theta_to_degrees(){
+  return floor((theta_current/theta_max)*180);
+}
 
 void Pump_On(){
-  digitalWrite(PUMP_PIN           , HIGH);
+  digitalWrite(PUMP_PIN           , LOW);
 }
 
 void Pump_Off(){
-  digitalWrite(PUMP_PIN           , LOW);
+  digitalWrite(PUMP_PIN           , HIGH);
 }
 
 void Vac_On(){
@@ -92,13 +95,13 @@ int getParameterValue(String parameter){
 
 
 void move_motors(String paramArray[]){
-  int radius = -1, theta = -1, z = -1;
+  int radius = -1, destination_theta = -1, z = -1;
   for (int i = 0; i < 3; i++){
     if (paramArray[i][0] == 'R'){
       radius = getParameterValue(paramArray[i]);
     }
     else if (paramArray[i][0] == 'T'){
-      theta = getParameterValue(paramArray[i]);
+      destination_theta = getParameterValue(paramArray[i]);
     }
     else if (paramArray[i][0] == 'Z'){
       z = getParameterValue(paramArray[i]);
@@ -107,36 +110,33 @@ void move_motors(String paramArray[]){
 
   // Movement of Radius
   if (radius != -1){
-    if (Z_STEPPER.currentPosition() < 3000 && R_STEPPER.currentPosition() <= 3100){
-      Z_STEPPER.runToNewPosition(3000); //  move z to get out of soil
+    if (radius > 3100) {
+      Z_Stepper_Top();
     }
-    if (radius > 3100 && R_STEPPER.currentPosition() <= 3100){
-      Z_STEPPER.runToNewPosition(z_top); //  move z to top to prevent running into assembly
-    }
-    if (radius >= 0){
-      if (radius > R_End){
-        R_STEPPER.runToNewPosition(R_End);
-      }
-      else {
-        R_STEPPER.runToNewPosition(radius);
-      }
+    if (radius > R_End){
+      R_STEPPER.runToNewPosition(R_End);
     }
     else if (radius < 0){
       R_STEPPER.runToNewPosition(0);
     }
+    else {
+      R_STEPPER.runToNewPosition(radius);
+    }
   }
 
   // Movement of Theta
-  if (theta != -1){
-    if (theta > 180) theta = 180;
-    if (theta < 0) theta = 0;
-    if (theta < theta_current){
-      DC_Motor_Clockwise();
-      while (theta != theta_current){}
-    }
-    else if (theta > theta_current){
+  if (destination_theta != -1){
+    if (destination_theta > 180) destination_theta = 180;
+    if (destination_theta < 0) destination_theta = 0;
+    if (destination_theta < theta_current){
       DC_Motor_Counterclockwise();
-      while (theta != theta_current){}
+      while (destination_theta != theta_to_degrees()){}
+      DC_Motor_Stop();
+    }
+    else if (destination_theta > theta_current){
+      DC_Motor_Clockwise();
+      while (destination_theta != theta_to_degrees()){}
+      DC_Motor_Stop();
     }
   }
 
@@ -171,7 +171,7 @@ void relay_open(String paramArray[]){
     Serial.print("Closing relay: ");
     Serial.println(relay);
     if (relay == 6){
-      Pump_Off();
+      Pump_On();
     }
     if (relay == 7){
       Vac_Off();
@@ -190,7 +190,7 @@ void relay_close(String paramArray[]){
     Serial.print("Opening relay: ");
     Serial.println(relay);
     if (relay == 6){
-      Pump_On();
+      Pump_Off();
     }
     if (relay == 7){
       Vac_On();
@@ -213,23 +213,23 @@ void wait(String paramArray[]){
   }
 }
 
-void r_min(){
-  R_STEPPER.stop();
-  R_STEPPER.setCurrentPosition(0);
-}
-
-void r_max(){
-  R_STEPPER.stop();
-}
-
-void z_min(){
-  Z_STEPPER.stop();
-}
-
-void z_max(){
-  Z_STEPPER.stop();
-  Z_STEPPER.setCurrentPosition(0);
-}
+//void r_min(){
+//  R_STEPPER.stop();
+//  R_STEPPER.setCurrentPosition(0);
+//}
+//
+//void r_max(){
+//  R_STEPPER.stop();
+//}
+//
+//void z_min(){
+//  Z_STEPPER.stop();
+//}
+//
+//void z_max(){
+//  Z_STEPPER.stop();
+//  Z_STEPPER.setCurrentPosition(0);
+//}
 
 void set_speed(String paramArray[]){
   int r_speed = -1;
@@ -299,6 +299,7 @@ void Home_Radius(){
   R_Stepper_Home();
   delay(1000);
   R_Stepper_End();
+  delay(500);
   R_STEPPER.runToNewPosition(0);
   Serial.println("[COMPLETE]");
 }
@@ -309,6 +310,25 @@ void Home_Z(){
   delay(1000);
   Z_Stepper_Top();
   Serial.println("[COMPLETE]");
+}
+
+void Run_Water(String paramArray[]){
+  int waterTime = -1;
+  for (int i = 0; i < 3; i++){
+    if (paramArray[i][0] == 'T'){
+      waterTime = getParameterValue(paramArray[i]);
+    }
+  }
+  Serial.print("Water time: ");
+  Serial.println(waterTime);
+  if (waterTime != -1){
+    Serial.println("Pump on");
+    Pump_On();
+    delay(waterTime);
+    Serial.println("Pump off");
+    Pump_Off();
+  }
+  
 }
 
 void Print_Settings(){
@@ -330,10 +350,6 @@ void Print_Settings(){
   Serial.println();
 }
 
-int theta_to_degrees(){
-  return floor(theta_current/theta_max)*180;
-}
-
 void Print_Status(){
   Serial.println();
   Serial.print("Radius Position: ");
@@ -346,8 +362,12 @@ void Print_Status(){
 }
 
 void Print_Commands(){
-  Serial.println("G28: Homing Sequence");
   Serial.println("G00 [r#] [t#] [z#]: Move Command.");
+  Serial.println("G28: Full Homing Sequence");
+  Serial.println("G29: Home just radius");
+  Serial.println("G30: Home just theta");
+  Serial.println("G31: Home just z axis");
+  Serial.println("G98: Return Z-Axis to top.");
   Serial.println("G04 P#: Delay command where P# is time in milliseconds");
   Serial.println("M126 T#: Close Relay where T# is relay number");
   Serial.println("M127 T#: Open Relay where T# is a relay number");
@@ -356,6 +376,7 @@ void Print_Commands(){
   Serial.println("D01: DC motors clockwise");
   Serial.println("M136: Print current setting values");
   Serial.println("M114: Print current positions");
+  Serial.println("W00 [t#]: Run water pump where t is time in milliseconds.");
   Serial.println("HELP: Print list of commands");
 }
 
