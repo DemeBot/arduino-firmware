@@ -1,3 +1,8 @@
+/*! \file setup.h
+    \brief Setup function for arduino.
+*/
+
+
 void setup() {
   pinMode(R_STEP_PIN              , OUTPUT);
   pinMode(R_DIR_PIN               , OUTPUT);
@@ -18,13 +23,9 @@ void setup() {
 
   pinMode(PUMP_PIN                , OUTPUT);
   pinMode(VAC_PIN                 , OUTPUT);
-
-//  attachInterrupt(digitalPinToInterrupt(R_MIN_PIN), r_min, RISING);
-//  attachInterrupt(digitalPinToInterrupt(R_MAX_PIN), r_max, RISING);
-//  attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), z_min, RISING);
-//  attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), z_max, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_A), clockwise, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_B), counter_clockwise, RISING);
+  
+  attachInterrupt(digitalPinToInterrupt(ENCODER_A), rotation_read_clockwise, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_B), rotation_read_counter_clockwise, RISING);
   
   pinMode(LED_PIN                 , OUTPUT);
 

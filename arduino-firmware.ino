@@ -1,3 +1,8 @@
+/*! \file arduino-firmware.ino
+    \brief Main loop for arduino.
+*/
+
+
 #include <stdio.h>
 #include <string.h>
 #include <Stepper.h>
@@ -28,16 +33,16 @@ void loop() {
     if (cmd == "G28"){
       homing();
     }
-    else if (cmd == "G29"){ // home just radius
+    else if (cmd == "G29"){   // home just radius
       Home_Radius();
     }
-    else if (cmd == "G30"){ // home just theta
+    else if (cmd == "G30"){   // home just theta
       Home_Theta();
     }
-    else if (cmd == "G31"){ // home just z
+    else if (cmd == "G31"){   // home just z
       Home_Z();
     }
-    else if (cmd == "G98"){ // return z to top
+    else if (cmd == "G98"){   // return z to top
       Z_Stepper_Top();
     }
     else if (cmd == "G00"){   // move tool to position. Takes in 3 parameters: Radius (R), Theta (T), Z (Z)
@@ -46,37 +51,37 @@ void loop() {
     else if (cmd == "G04"){   // sets delay time in milliseconds. Takes 1 Parameter: Pause (P)
       wait(paramArray);
     }
-    else if (cmd == "M126"){  // opens relay. Takes 1 Parameter: Relay_Number (T)
-      relay_open(paramArray);
-    }
-    else if (cmd == "M127"){  // closes relay. Takes 1 Parameter: Relay_Number (T) 
+    else if (cmd == "M126"){  // close relay. Takes 1 Parameter: Relay_Number (T)
       relay_close(paramArray);
     }
-    else if (cmd == "D00"){  // stop dc motors 
+    else if (cmd == "M127"){  // open relay. Takes 1 Parameter: Relay_Number (T) 
+      relay_open(paramArray);
+    }
+    else if (cmd == "D00"){   // stop dc motors 
       DC_Motor_Stop();
     }
-    else if (cmd == "D01"){  // move dc motors counter clockwise 
+    else if (cmd == "D01"){   // move dc motors counter clockwise 
       DC_Motor_Counterclockwise();
     }
-    else if (cmd == "D02"){  // move dc motors clockwise 
+    else if (cmd == "D02"){   // move dc motors clockwise 
       DC_Motor_Clockwise();
     }
     else if (cmd == "M136"){  // Get current setting values 
       Print_Settings();
     }
-    else if (cmd == "M114"){  // Get current position 
+    else if (cmd == "M114"){  // print status of robot 
       Print_Status();
     }
-    else if (cmd == "W00"){  // Get current position 
+    else if (cmd == "W00"){   // water for t[seconds] 
       Run_Water(paramArray);
     }
-    else if (cmd == "HELP"){  // Get current position 
+    else if (cmd == "HELP"){  // print all commands 
       Print_Commands();
     }
-    else if (cmd == "DEMO"){  // Get current position 
+    else if (cmd == "DEMO"){  // run demo 
       demo();
     }
-    else {
+    else {                    // if not valid command, print invalid command
       Serial.println("Not a valid command. Enter Help for Commands.");
     }
     Serial.println("done " + input_string);

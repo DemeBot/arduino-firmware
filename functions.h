@@ -1,76 +1,18 @@
-// ################################### FUNCTIONS ######################################
+/*! \file functions.h
+    \brief This file includes all the functions the program runs.
+*/
+
+///
+/// Converts global current_theta value from encoder to degrees out of 180.
+///
 float theta_to_degrees(){
   return floor((theta_current/theta_max)*180);
 }
 
-void Pump_On(){
-  digitalWrite(PUMP_PIN           , LOW);
-}
-
-void Pump_Off(){
-  digitalWrite(PUMP_PIN           , HIGH);
-}
-
-void Vac_On(){
-  digitalWrite(VAC_PIN            , HIGH);
-}
-
-void Vac_Off(){
-  digitalWrite(VAC_PIN            , LOW);
-}
-
-void DC_Motor_Clockwise(){
-  digitalWrite(THETA_LEFT_PIN     , LOW);
-  digitalWrite(THETA_RIGHT_PIN    , HIGH);
-  dc_direction = "CLOCKWISE";
-}
-
-void DC_Motor_Counterclockwise(){
-  digitalWrite(THETA_LEFT_PIN     , HIGH);
-  digitalWrite(THETA_RIGHT_PIN    , LOW);
-  dc_direction = "COUNTER CLOCKWISE";
-}
-
-void DC_Motor_Stop(){
-  digitalWrite(THETA_LEFT_PIN     , HIGH);
-  digitalWrite(THETA_RIGHT_PIN    , HIGH);
-}
-
-void Z_Stepper_Top(){
-  while (!digitalRead(Z_MIN_PIN)){
-      Z_STEPPER.setSpeed(zMaxSpeed);
-      Z_STEPPER.runSpeed();
-  }
-  z_top = Z_STEPPER.currentPosition();
-}
-
-void Z_Stepper_Bottom(){
-  while (!digitalRead(Z_MAX_PIN)){
-      Z_STEPPER.setSpeed(-zMaxSpeed);
-      Z_STEPPER.runSpeed();
-  }
-  Z_STEPPER.setCurrentPosition(0); //should set motor position to zero and go back to main routine
-}
-
-void R_Stepper_Home(){
-  while((digitalRead(R_MIN_PIN) == LOW)){
-      R_STEPPER.setSpeed(-rMaxSpeed);
-      R_STEPPER.runSpeed();
-  }
-  R_STEPPER.setCurrentPosition(0); //should set motor position to zero and go back to main routine
-}
-
-void R_Stepper_End(){
-  while((digitalRead(R_MAX_PIN) == LOW)){
-      R_STEPPER.setSpeed(rMaxSpeed);
-      R_STEPPER.runSpeed();
-  }
-  R_End = R_STEPPER.currentPosition();
-}
-
-// get values from serial input string
-String getValue(String data, char separator, int index)
-{
+///
+/// Get values from serial input string
+///
+String getValue(String data, char separator, int index){
   int found = 0;
   int strIndex[] = {0, -1};
   int maxIndex = data.length()-1;
@@ -86,13 +28,102 @@ String getValue(String data, char separator, int index)
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
-// parse parameter from g-code command and return the value
+///
+/// Parse parameter from g-code command and return the value
+///
 int getParameterValue(String parameter){
   String substr = parameter.substring(1,parameter.length());
   int value = substr.toInt();
   return value;
 }
 
+///
+/// Turn pump on/off based off input
+///
+void pump(int pumpIn){
+  digitalWrite(PUMP_PIN, pumpIn);
+}
+
+///
+/// Turn vac on/off based off input
+///
+void vac(int vacIn){
+  digitalWrite(VAC_PIN, vacIn);
+}
+
+///
+/// move dc motors clockwise
+///
+void DC_Motor_Clockwise(){
+  digitalWrite(THETA_LEFT_PIN     , LOW);
+  digitalWrite(THETA_RIGHT_PIN    , HIGH);
+  dc_direction = "CLOCKWISE";
+}
+
+///
+/// move dc motors counter clockwise
+///
+void DC_Motor_Counterclockwise(){
+  digitalWrite(THETA_LEFT_PIN     , HIGH);
+  digitalWrite(THETA_RIGHT_PIN    , LOW);
+  dc_direction = "COUNTER CLOCKWISE";
+}
+
+///
+/// stop dc motors
+///
+void DC_Motor_Stop(){
+  digitalWrite(THETA_LEFT_PIN     , HIGH);
+  digitalWrite(THETA_RIGHT_PIN    , HIGH);
+}
+
+///
+/// move z axis to top position
+///
+void Z_Stepper_Top(){
+  while (!digitalRead(Z_MIN_PIN)){
+      Z_STEPPER.setSpeed(zMaxSpeed);
+      Z_STEPPER.runSpeed();
+  }
+  z_top = Z_STEPPER.currentPosition();
+}
+
+///
+/// move z axis to bottom position
+///
+void Z_Stepper_Bottom(){
+  while (!digitalRead(Z_MAX_PIN)){
+      Z_STEPPER.setSpeed(-zMaxSpeed);
+      Z_STEPPER.runSpeed();
+  }
+  Z_STEPPER.setCurrentPosition(0); //should set motor position to zero and go back to main routine
+}
+
+///
+/// move r axis to most inward position
+///
+void R_Stepper_Home(){
+  while((digitalRead(R_MIN_PIN) == LOW)){
+      R_STEPPER.setSpeed(-rMaxSpeed);
+      R_STEPPER.runSpeed();
+  }
+  R_STEPPER.setCurrentPosition(0); //should set motor position to zero and go back to main routine
+}
+
+///
+/// move r axis to outward position
+///
+void R_Stepper_End(){
+  while((digitalRead(R_MAX_PIN) == LOW)){
+      R_STEPPER.setSpeed(rMaxSpeed);
+      R_STEPPER.runSpeed();
+  }
+  R_End = R_STEPPER.currentPosition();
+}
+
+///
+/// move theta to destination_theta
+///
 void move_theta(int destination_theta){
     if (destination_theta > 180) destination_theta = 180;
     if (destination_theta < 0) destination_theta = 0;
@@ -108,6 +139,9 @@ void move_theta(int destination_theta){
     }
 }
 
+///
+/// move r axis to radius
+///
 void move_radius(int radius){
   if (radius > 3100) {
     Z_Stepper_Top();
@@ -123,6 +157,9 @@ void move_radius(int radius){
   }
 }
 
+///
+/// move z axis to z
+///
 void move_z(int z){
   if (z > z_top) {
     Z_STEPPER.runToNewPosition(z_top);
@@ -140,7 +177,9 @@ void move_z(int z){
   }
 }
 
-
+///
+/// move command for g-code 
+///
 void move_motors(String paramArray[]){
   int radius = -1, destination_theta = -1, z = -1;
   for (int i = 0; i < 3; i++){
@@ -171,25 +210,33 @@ void move_motors(String paramArray[]){
   }
 }
 
+///
+/// opens a relay, turning specified relay device off
+///
 void relay_open(String paramArray[]){
   int relay = -1;
   for (int i = 0; i < 3; i++){
     if (paramArray[i][0] == 'T'){
       relay = getParameterValue(paramArray[i]);
     }
+    else if (paramArray[i][0] == 'A'){
+      pump(OFF);
+      vac(OFF);
+    }
   }
   if (relay != -1){
-    Serial.print("Closing relay: ");
-    Serial.println(relay);
     if (relay == 6){
-      Pump_On();
+      pump(OFF);
     }
     if (relay == 7){
-      Vac_Off();
+      vac(OFF);
     }
   }
 }
 
+///
+/// closes a relay, turning specified relay device on
+///
 void relay_close(String paramArray[]){
   int relay = -1;
   for (int i = 0; i < 3; i++){
@@ -198,17 +245,18 @@ void relay_close(String paramArray[]){
     }
   }
   if (relay != -1){
-    Serial.print("Opening relay: ");
-    Serial.println(relay);
     if (relay == 6){
-      Pump_Off();
+      pump(ON);
     }
     if (relay == 7){
-      Vac_On();
+      vac(ON);
     }
   }
 }
 
+///
+/// puts a delay in for designated time in milliseconds
+///
 void wait(String paramArray[]){
   int pause = -1;
   for (int i = 0; i < 3; i++){
@@ -224,71 +272,9 @@ void wait(String paramArray[]){
   }
 }
 
-//void r_min(){
-//  R_STEPPER.stop();
-//  R_STEPPER.setCurrentPosition(0);
-//}
-//
-//void r_max(){
-//  R_STEPPER.stop();
-//}
-//
-//void z_min(){
-//  Z_STEPPER.stop();
-//}
-//
-//void z_max(){
-//  Z_STEPPER.stop();
-//  Z_STEPPER.setCurrentPosition(0);
-//}
-
-void set_speed(String paramArray[]){
-  int r_speed = -1;
-  int z_speed = -1;
-  for (int i = 0; i < 3; i++){
-    if (paramArray[i][0] == 'Z'){
-      z_speed = getParameterValue(paramArray[i]);
-    }
-    else if (paramArray[i][0] == 'R'){
-      r_speed = getParameterValue(paramArray[i]);
-    }
-  }
-  if (r_speed != -1){
-    if (r_speed > 0 and r_speed <= 100){
-      rMaxSpeed = r_default_speed * (r_speed/100);
-    }
-  }
-  if (z_speed != -1){
-    zMaxSpeed = z_speed;
-  }
-  Serial.println();
-  Serial.print("R Speed = ");
-  Serial.println(rMaxSpeed);
-  Serial.print("Z Speed = ");
-  Serial.println(zMaxSpeed);
-  Serial.println();
-}
-
-// clockwise rotation
-void clockwise() {
-  // Check pin 21 to determine the direction
-  if (digitalRead(ENCODER_B) == LOW) {
-    theta_current++;
-  } else {
-    if (theta_current > 0) theta_current--;
-  }
-}
-
-// counter-clockwise rotation
-void counter_clockwise() {
-  // Check with pin 20 to determine the direction
-  if (digitalRead(ENCODER_A) == LOW) {
-    if (theta_current > 0) theta_current--;
-  } else {
-    theta_current++;
-  }
-}
-
+///
+/// Homes the theta axis
+///
 void Home_Theta(){
   Serial.print("Homing Theta. ");
   while(!digitalRead(THETA_MIN_PIN)){
@@ -305,6 +291,9 @@ void Home_Theta(){
   Serial.println("[COMPLETE]");
 }
 
+///
+/// Homes the r axis
+///
 void Home_Radius(){
   Serial.print("Homing Radius. ");
   R_Stepper_Home();
@@ -315,6 +304,9 @@ void Home_Radius(){
   Serial.println("[COMPLETE]");
 }
 
+///
+/// Hoes the z axis
+///
 void Home_Z(){
   Serial.print("Homing Z. ");
   Z_Stepper_Bottom();
@@ -323,6 +315,9 @@ void Home_Z(){
   Serial.println("[COMPLETE]");
 }
 
+///
+/// Waters for time given in milliseconds
+///
 void Run_Water(String paramArray[]){
   int waterTime = -1;
   for (int i = 0; i < 3; i++){
@@ -330,18 +325,18 @@ void Run_Water(String paramArray[]){
       waterTime = getParameterValue(paramArray[i]);
     }
   }
-  Serial.print("Water time: ");
   Serial.println(waterTime);
   if (waterTime != -1){
-    Serial.println("Pump on");
-    Pump_On();
+    pump(ON);
     delay(waterTime);
-    Serial.println("Pump off");
-    Pump_Off();
+    pump(OFF);
   }
   
 }
 
+///
+/// Prints the current settings of the robot
+///
 void Print_Settings(){
   Serial.println();
   Serial.print("Radial length: ");
@@ -361,6 +356,9 @@ void Print_Settings(){
   Serial.println();
 }
 
+///
+/// Prints the current positions of the robot
+///
 void Print_Status(){
   Serial.println();
   Serial.print("Radius Position: ");
@@ -372,6 +370,9 @@ void Print_Status(){
   Serial.println();
 }
 
+///
+/// Prints a list of commands accepted by the robot
+///
 void Print_Commands(){
   Serial.println("G00 [r#] [t#] [z#]: Move Command.");
   Serial.println("G28: Full Homing Sequence");
@@ -392,6 +393,9 @@ void Print_Commands(){
   Serial.println("HELP: Print list of commands");
 }
 
+///
+/// Homes all axies of robot
+///
 void homing(){
   Z_Stepper_Top();// move z to top to ensure it doesn't hit anything while moving radius
   Home_Radius();  // home the radial axis
@@ -401,6 +405,9 @@ void homing(){
   Print_Status();
 }
 
+///
+/// Demo code that runs to each plot position
+///
 void demo(){
   for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
     move_z(z_top);
@@ -414,4 +421,27 @@ void demo(){
   move_radius(0);
 }
 
+///
+/// logs clockwise rotation on rotary encoder
+///
+void rotation_read_clockwise() {
+  // Check pin 21 to determine the direction
+  if (digitalRead(ENCODER_B) == LOW) {
+    theta_current++;
+  } else {
+    if (theta_current > 0) theta_current--;
+  }
+}
+
+///
+/// logs counter-clockwise rotation on rotary encoder
+///
+void rotation_read_counter_clockwise() {
+  // Check with pin 20 to determine the direction
+  if (digitalRead(ENCODER_A) == LOW) {
+    if (theta_current > 0) theta_current--;
+  } else {
+    theta_current++;
+  }
+}
 

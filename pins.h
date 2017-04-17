@@ -1,4 +1,6 @@
-// ################################### PINS ######################################
+/*! \file pins.h
+    \brief GPIO pin setup.
+*/
 
 #define R_STEP_PIN         54   // X STEPPER PORT
 #define R_DIR_PIN          55   // X STEPPER PORT
