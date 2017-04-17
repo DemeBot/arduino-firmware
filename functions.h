@@ -93,6 +93,53 @@ int getParameterValue(String parameter){
   return value;
 }
 
+void move_theta(int destination_theta){
+    if (destination_theta > 180) destination_theta = 180;
+    if (destination_theta < 0) destination_theta = 0;
+    if (destination_theta < theta_current){
+      DC_Motor_Counterclockwise();
+      while (destination_theta != theta_to_degrees()){}
+      DC_Motor_Stop();
+    }
+    else if (destination_theta > theta_current){
+      DC_Motor_Clockwise();
+      while (destination_theta != theta_to_degrees()){}
+      DC_Motor_Stop();
+    }
+}
+
+void move_radius(int radius){
+  if (radius > 3100) {
+    Z_Stepper_Top();
+  }
+  if (radius > R_End){
+    R_STEPPER.runToNewPosition(R_End);
+  }
+  else if (radius < 0){
+    R_STEPPER.runToNewPosition(0);
+  }
+  else {
+    R_STEPPER.runToNewPosition(radius);
+  }
+}
+
+void move_z(int z){
+  if (z > z_top) {
+    Z_STEPPER.runToNewPosition(z_top);
+  }
+  else {
+    if (z < 0){
+      z = 0;
+    }
+    if (R_STEPPER.currentPosition() > 3100){
+      Z_STEPPER.runToNewPosition(4500);
+    }
+    else{
+      Z_STEPPER.runToNewPosition(z);
+    }
+  }
+}
+
 
 void move_motors(String paramArray[]){
   int radius = -1, destination_theta = -1, z = -1;
@@ -110,53 +157,17 @@ void move_motors(String paramArray[]){
 
   // Movement of Radius
   if (radius != -1){
-    if (radius > 3100) {
-      Z_Stepper_Top();
-    }
-    if (radius > R_End){
-      R_STEPPER.runToNewPosition(R_End);
-    }
-    else if (radius < 0){
-      R_STEPPER.runToNewPosition(0);
-    }
-    else {
-      R_STEPPER.runToNewPosition(radius);
-    }
+    move_radius(radius);
   }
 
   // Movement of Theta
   if (destination_theta != -1){
-    if (destination_theta > 180) destination_theta = 180;
-    if (destination_theta < 0) destination_theta = 0;
-    if (destination_theta < theta_current){
-      DC_Motor_Counterclockwise();
-      while (destination_theta != theta_to_degrees()){}
-      DC_Motor_Stop();
-    }
-    else if (destination_theta > theta_current){
-      DC_Motor_Clockwise();
-      while (destination_theta != theta_to_degrees()){}
-      DC_Motor_Stop();
-    }
+    move_theta(destination_theta);
   }
 
   // Movement of Z
   if (z != -1){
-    if (z > z_top) {
-      Z_STEPPER.runToNewPosition(z_top);
-    }
-    else {
-      if (z < 0){
-        z = 0;
-      }
-      if (R_STEPPER.currentPosition() > 3100){
-        Z_STEPPER.runToNewPosition(4500);
-      }
-      else{
-        Z_STEPPER.runToNewPosition(z);
-      }
-    }
-
+    move_z(z);
   }
 }
 
@@ -377,6 +388,7 @@ void Print_Commands(){
   Serial.println("M136: Print current setting values");
   Serial.println("M114: Print current positions");
   Serial.println("W00 [t#]: Run water pump where t is time in milliseconds.");
+  Serial.println("DEMO: run farmbot demo");
   Serial.println("HELP: Print list of commands");
 }
 
@@ -387,6 +399,19 @@ void homing(){
   Home_Theta();   // home theta
   Print_Settings();
   Print_Status();
+}
+
+void demo(){
+  for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
+    move_z(z_top);
+    move_theta(locations[i][1]);
+    move_radius(locations[i][0]);
+    move_z(0);
+    delay(2000); // replace with watering command
+  }
+  move_z(z_top);
+  move_theta(0);
+  move_radius(0);
 }
 
 

@@ -22,3 +22,21 @@ int R_End = 0;
 float theta_max = 1;
 volatile float theta_current = 0; // This variable will increase or decrease depending on the rotation of encoder
 String dc_direction = "STOP";
+
+float locations[][2] = {
+  // { r, theta }
+  {1000, 0},
+  {1000, 45},
+  {1000, 90},
+  {1000, 135},
+  {1000, 180},
+  {3000, 180},
+  {3000, 157.5},
+  {3000, 135},
+  {3000, 112.5},
+  {3000, 90},
+  {3000, 67.5},
+  {3000, 45},
+  {3000, 22.5},
+  {3000, 0}
+};

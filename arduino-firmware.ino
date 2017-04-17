@@ -15,7 +15,7 @@ void loop() {
     // Read and Manipulate incoming data
     String input_string = Serial.readString(); // read the incoming data as string
     for(int i = 0; i < input_string.length(); i++) { input_string[i] = toupper(input_string[i]); } // capitalize input string
-    Serial.println("Input received: " + input_string);
+    Serial.println("ok " + input_string);
 
     // Parse out incoming data into a command, parameter 1, parameter 2, and parameter 3
     String cmd = getValue(input_string,' ',0);
@@ -73,10 +73,13 @@ void loop() {
     else if (cmd == "HELP"){  // Get current position 
       Print_Commands();
     }
+    else if (cmd == "DEMO"){  // Get current position 
+      demo();
+    }
     else {
       Serial.println("Not a valid command. Enter Help for Commands.");
     }
-    Serial.println("\nREADY FOR INPUT!");
+    Serial.println("done " + input_string);
   }
 
   if(digitalRead(THETA_MIN_PIN) && dc_direction == "COUNTER CLOCKWISE"){
