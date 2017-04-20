@@ -21,6 +21,9 @@ int r_default_speed         = 1500;
 int z_default_speed         = 1000;
 const int rMaxAcceleration  = 1000;
 const int zMaxAcceleration  = 1000;
+bool isHomedR = false;
+bool isHomedT = false;
+bool isHomedZ = false;
 
 int z_top = 0;
 int R_End = 0;

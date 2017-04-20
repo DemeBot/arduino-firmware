@@ -184,6 +184,59 @@ void move_z(int z){
 }
 
 ///
+/// Homes the theta axis
+///
+void Home_Theta(){
+  
+  Z_Stepper_Top();
+  Serial.print("Homing Theta. ");
+  while(!digitalRead(THETA_MIN_PIN)){
+    DC_Motor_Counterclockwise();
+  }
+
+  theta_current = 0;
+
+  while(!digitalRead(THETA_MAX_PIN)){
+    DC_Motor_Clockwise();
+  }
+
+  DC_Motor_Stop();
+
+  delay(2000);
+
+  theta_max = theta_current;
+  isHomedT = true;
+  Serial.println("[COMPLETE]");
+}
+
+///
+/// Homes the r axis
+///
+void Home_Radius(){
+  Z_Stepper_Top();
+  Serial.print("Homing Radius. ");
+  R_Stepper_Home();
+  delay(1000);
+  R_Stepper_End();
+  delay(500);
+  R_STEPPER.runToNewPosition(0);
+  isHomedR = true;
+  Serial.println("[COMPLETE]");
+}
+
+///
+/// Hoes the z axis
+///
+void Home_Z(){
+  Serial.print("Homing Z. ");
+  Z_Stepper_Bottom();
+  delay(1000);
+  Z_STEPPER.runToNewPosition(z_top);
+  isHomedZ = true;
+  Serial.println("[COMPLETE]");
+}
+
+///
 /// move command for g-code 
 ///
 void move_motors(String paramArray[]){
@@ -202,16 +255,25 @@ void move_motors(String paramArray[]){
 
   // Movement of Radius
   if (radius != -1){
+    if (!isHomedR){
+      Home_Radius();
+    }
     move_radius(radius);
   }
 
   // Movement of Theta
   if (destination_theta != -1){
+    if (!isHomedT){
+      Home_Theta();
+    }
     move_theta(destination_theta);
   }
 
   // Movement of Z
   if (z != -1){
+    if (!isHomedZ){
+      Home_Z();
+    }
     move_z(z);
   }
 }
@@ -278,48 +340,6 @@ void wait(String paramArray[]){
   }
 }
 
-///
-/// Homes the theta axis
-///
-void Home_Theta(){
-  Serial.print("Homing Theta. ");
-  while(!digitalRead(THETA_MIN_PIN)){
-    DC_Motor_Counterclockwise();
-  }
-
-  theta_current = 0;
-
-  while(!digitalRead(THETA_MAX_PIN)){
-    DC_Motor_Clockwise();
-  }
-
-  theta_max = theta_current;
-  Serial.println("[COMPLETE]");
-}
-
-///
-/// Homes the r axis
-///
-void Home_Radius(){
-  Serial.print("Homing Radius. ");
-  R_Stepper_Home();
-  delay(1000);
-  R_Stepper_End();
-  delay(500);
-  R_STEPPER.runToNewPosition(0);
-  Serial.println("[COMPLETE]");
-}
-
-///
-/// Hoes the z axis
-///
-void Home_Z(){
-  Serial.print("Homing Z. ");
-  Z_Stepper_Bottom();
-  delay(1000);
-  Z_STEPPER.runToNewPosition(z_top);
-  Serial.println("[COMPLETE]");
-}
 
 ///
 /// Waters for time given in milliseconds
@@ -412,9 +432,23 @@ void homing(){
 }
 
 ///
+/// Waters for time given in milliseconds
+///
+void Run_Water_For_Time(int timer){
+  if (timer>0 && timer<=6000){
+    pump(ON);
+    delay(timer);
+    pump(OFF);
+  }
+}
+
+///
 /// Demo code that runs to each plot position
 ///
 void demo(){
+  if(!isHomedR) Home_Radius();
+  if(!isHomedT) Home_Theta();
+  if(!isHomedZ) Home_Z();
   for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
     move_z(z_top);
     move_theta(locations[i][1]);
@@ -425,7 +459,7 @@ void demo(){
     if(soil_moisture <= 250) {
       Serial.println("Dry Soil");
       move_z(1500);
-      // add time to water
+      Run_Water_For_Time(4000);
     }
   }
   move_z(z_top);
