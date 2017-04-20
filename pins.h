@@ -22,6 +22,7 @@
 
 #define ENCODER_A          20
 #define ENCODER_B          21
+#define soilSensorPin      A3
 
 #define E_STEP_PIN         26
 #define E_DIR_PIN          28

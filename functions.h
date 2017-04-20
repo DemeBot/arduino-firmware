@@ -125,14 +125,20 @@ void R_Stepper_End(){
 /// move theta to destination_theta
 ///
 void move_theta(int destination_theta){
+    Serial.print("Destination Theta: ");
+    Serial.println(destination_theta);
+    Serial.print("Current Theta: ");
+    Serial.println(theta_current);
+    Serial.print("Current Theta in degrees: ");
+    Serial.println(theta_to_degrees());
     if (destination_theta > 180) destination_theta = 180;
     if (destination_theta < 0) destination_theta = 0;
-    if (destination_theta < theta_current){
+    if (destination_theta < theta_to_degrees()){
       DC_Motor_Counterclockwise();
       while (destination_theta != theta_to_degrees()){}
       DC_Motor_Stop();
     }
-    else if (destination_theta > theta_current){
+    else if (destination_theta > theta_to_degrees()){
       DC_Motor_Clockwise();
       while (destination_theta != theta_to_degrees()){}
       DC_Motor_Stop();
@@ -311,7 +317,7 @@ void Home_Z(){
   Serial.print("Homing Z. ");
   Z_Stepper_Bottom();
   delay(1000);
-  Z_Stepper_Top();
+  Z_STEPPER.runToNewPosition(z_top);
   Serial.println("[COMPLETE]");
 }
 
@@ -414,7 +420,13 @@ void demo(){
     move_theta(locations[i][1]);
     move_radius(locations[i][0]);
     move_z(0);
-    delay(2000); // replace with watering command
+    int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
+    
+    if(soil_moisture <= 250) {
+      Serial.println("Dry Soil");
+      move_z(1500);
+      // add time to water
+    }
   }
   move_z(z_top);
   move_theta(0);

@@ -2,6 +2,15 @@
     \brief Main loop for arduino.
 */
 
+/* # the sensor value description
+
+# 0-250     dry soil
+
+# 300~500     humid soil
+
+# 500~950     in water
+
+*/
 
 #include <stdio.h>
 #include <string.h>
