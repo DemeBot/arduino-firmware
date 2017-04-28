@@ -6,7 +6,7 @@
 /// Converts global current_theta value from encoder to degrees out of 180.
 ///
 float theta_to_degrees(){
-  return floor((theta_current/theta_max)*180);
+  return round((theta_current/theta_max)*180);
 }
 
 ///
