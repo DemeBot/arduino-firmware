@@ -10,6 +10,30 @@ float theta_to_degrees(){
 }
 
 ///
+/// logs clockwise rotation on rotary encoder
+///
+void rotation_read_clockwise() {
+  // Check pin 21 to determine the direction
+  if (digitalRead(ENCODER_B) == LOW) {
+    theta_current++;
+  } else {
+    if (theta_current > 0) theta_current--;
+  }
+}
+
+///
+/// logs counter-clockwise rotation on rotary encoder
+///
+void rotation_read_counter_clockwise() {
+  // Check with pin 20 to determine the direction
+  if (digitalRead(ENCODER_A) == LOW) {
+    if (theta_current > 0) theta_current--;
+  } else {
+    theta_current++;
+  }
+}
+
+///
 /// Get values from serial input string
 ///
 String getValue(String data, char separator, int index){
@@ -125,12 +149,12 @@ void R_Stepper_End(){
 /// move theta to destination_theta
 ///
 void move_theta(int destination_theta){
-    Serial.print("Destination Theta: ");
-    Serial.println(destination_theta);
-    Serial.print("Current Theta: ");
-    Serial.println(theta_current);
-    Serial.print("Current Theta in degrees: ");
-    Serial.println(theta_to_degrees());
+//    Serial.print("Destination Theta: ");
+//    Serial.println(destination_theta);
+//    Serial.print("Current Theta: ");
+//    Serial.println(theta_current);
+//    Serial.print("Current Theta in degrees: ");
+//    Serial.println(theta_to_degrees());
     if (destination_theta > 180) destination_theta = 180;
     if (destination_theta < 0) destination_theta = 0;
     if (destination_theta < theta_to_degrees()){
@@ -149,7 +173,7 @@ void move_theta(int destination_theta){
 /// move r axis to radius
 ///
 void move_radius(int radius){
-  if (radius > 3100) {
+  if (radius > 1750) {
     Z_Stepper_Top();
   }
   if (radius > R_End){
@@ -167,11 +191,13 @@ void move_radius(int radius){
 /// move z axis to z
 ///
 void move_z(int z){
+  detachInterrupt(digitalPinToInterrupt(ENCODER_A));
+  detachInterrupt(digitalPinToInterrupt(ENCODER_B));
   // seeds are at z:4000 r:3500
-  if (z > z_top) {
+  if (z >= z_top) {
     Z_STEPPER.runToNewPosition(z_top);
   }
-  else if ( z < 0 ){
+  else if ( z <= 0 ){
     Z_STEPPER.runToNewPosition(0);
   }
   else {
@@ -182,6 +208,8 @@ void move_z(int z){
       Z_STEPPER.runToNewPosition(z_top);
     }
   }
+  attachInterrupt(digitalPinToInterrupt(ENCODER_A), rotation_read_clockwise, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_B), rotation_read_counter_clockwise, RISING);
 }
 
 ///
@@ -334,9 +362,6 @@ void wait(String paramArray[]){
     }
   }
   if (pause != -1){
-    Serial.print("Delaying for ");
-    Serial.print(pause);
-    Serial.println(" milliseconds.");
     delay(pause);
   }
 }
@@ -352,7 +377,6 @@ void Run_Water(String paramArray[]){
       waterTime = getParameterValue(paramArray[i]);
     }
   }
-  Serial.println(waterTime);
   if (waterTime != -1){
     pump(ON);
     delay(waterTime);
@@ -451,48 +475,19 @@ void demo(){
   if(!isHomedZ) Home_Z();
   if(!isHomedT) Home_Theta();
   for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
-    move_z(z_top);
+    move_z(z_top/2);
     move_theta(locations[i][1]);
     move_radius(locations[i][0]);
     move_z(0);
     int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
-    
+    delay(1000);
     if(soil_moisture <= 250) {
-      Serial.println("Dry Soil");
-      move_z(1500);
+      move_z(z_top/4);
       Run_Water_For_Time(4000);
     }
 
     Serial.println("ok C: r" + String(locations[i][0]) + " t" + String(locations[i][1]) + " z" + String(0));
 
-  }
-  move_z(z_top);
-  move_theta(0);
-  move_radius(0);
-  Serial.println("ok C: r" + String(0) + " t" + String(0) + " z" + String(z_top));
-}
-
-///
-/// logs clockwise rotation on rotary encoder
-///
-void rotation_read_clockwise() {
-  // Check pin 21 to determine the direction
-  if (digitalRead(ENCODER_B) == LOW) {
-    theta_current++;
-  } else {
-    if (theta_current > 0) theta_current--;
-  }
-}
-
-///
-/// logs counter-clockwise rotation on rotary encoder
-///
-void rotation_read_counter_clockwise() {
-  // Check with pin 20 to determine the direction
-  if (digitalRead(ENCODER_A) == LOW) {
-    if (theta_current > 0) theta_current--;
-  } else {
-    theta_current++;
   }
 }
 
