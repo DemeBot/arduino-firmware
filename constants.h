@@ -10,8 +10,8 @@ const long interval = 5000;     // interval in milliseconds
 unsigned long previousMillis = 0;
 bool flag = true;
 
-int ON = HIGH;
-int OFF = LOW;
+int ON = LOW;
+int OFF = HIGH;
 
 // AccelStepper Constants
 const int homingStepCount   = 10;
@@ -33,14 +33,14 @@ String dc_direction = "STOP";
 
 // { r, theta }
 float locations[][2] = {
-  {100, 180}, 
+  {100, 175}, 
   {100, 135},
   {100, 90},
   {100, 45},
-  {100, 0},
-  {1750, 0},
+  {100, 5},
+  {1750, 5},
   {1750, 45},
   {1750, 90},
   {1750, 135},
-  {1750, 180}
+  {1750, 175}
 };

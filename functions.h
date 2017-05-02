@@ -135,12 +135,12 @@ void move_theta(int destination_theta){
     if (destination_theta < 0) destination_theta = 0;
     if (destination_theta < theta_to_degrees()){
       DC_Motor_Counterclockwise();
-      while (destination_theta != theta_to_degrees()){}
+      while (destination_theta < theta_to_degrees()){}
       DC_Motor_Stop();
     }
     else if (destination_theta > theta_to_degrees()){
       DC_Motor_Clockwise();
-      while (destination_theta != theta_to_degrees()){}
+      while (destination_theta > theta_to_degrees()){}
       DC_Motor_Stop();
     }
 }
@@ -167,18 +167,19 @@ void move_radius(int radius){
 /// move z axis to z
 ///
 void move_z(int z){
+  // seeds are at z:4000 r:3500
   if (z > z_top) {
     Z_STEPPER.runToNewPosition(z_top);
   }
+  else if ( z < 0 ){
+    Z_STEPPER.runToNewPosition(0);
+  }
   else {
-    if (z < 0){
-      z = 0;
+    if ((R_STEPPER.currentPosition() == 3500) && (z <= 4000)){
+      Z_STEPPER.runToNewPosition(4000);
     }
-    if (R_STEPPER.currentPosition() > 3100){
-      Z_STEPPER.runToNewPosition(4500);
-    }
-    else{
-      Z_STEPPER.runToNewPosition(z);
+    else if (R_STEPPER.currentPosition() > 1750){
+      Z_STEPPER.runToNewPosition(z_top);
     }
   }
 }
@@ -447,8 +448,8 @@ void Run_Water_For_Time(int timer){
 ///
 void demo(){
   if(!isHomedR) Home_Radius();
-  if(!isHomedT) Home_Theta();
   if(!isHomedZ) Home_Z();
+  if(!isHomedT) Home_Theta();
   for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
     move_z(z_top);
     move_theta(locations[i][1]);
@@ -461,10 +462,14 @@ void demo(){
       move_z(1500);
       Run_Water_For_Time(4000);
     }
+
+    Serial.println("ok C: r" + String(locations[i][0]) + " t" + String(locations[i][1]) + " z" + String(0));
+
   }
   move_z(z_top);
   move_theta(0);
   move_radius(0);
+  Serial.println("ok C: r" + String(0) + " t" + String(0) + " z" + String(z_top));
 }
 
 ///
