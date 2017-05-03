@@ -494,7 +494,7 @@ void demo(){
 ///
 /// Demo code to show planting
 ///
-void demo_seed(){
+void demo_seed(String paramArray[]){
   int theta = -1, radius = -1;
   if(!isHomedR) Home_Radius();
   if(!isHomedZ) Home_Z();
@@ -507,16 +507,20 @@ void demo_seed(){
       radius = getParameterValue(paramArray[i]);
     }
   }
-  move_z(z_top);
-  move_theta(theta);
-  move_r(3500);
-  move_z(0);
-  vac(ON);
-  move_radius(radius);
-  move_z(0);
-  vac(OFF);
-  delay(3000);
-  move_z(z_top);
-  Serial.println("ok C: r:" + String(locations[i][0]) + " t:" + String(locations[i][1]) + " z:" + String(z_top));
+  if(theta != -1 && radius != -1){
+    move_z(z_top);
+    move_theta(theta);
+    move_radius(3500);
+    move_z(3900);
+    vac(ON);
+    delay(1000);
+    move_z(z_top/2);
+    move_radius(radius);
+    move_z(0);
+    vac(OFF);
+    delay(3000);
+    move_z(z_top);
+    Serial.println("ok C: r:" + String(radius) + " t:" + String(theta) + " z:" + String(z_top));
+  }
 }
 
