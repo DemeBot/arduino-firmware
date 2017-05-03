@@ -483,11 +483,40 @@ void demo(){
     delay(1000);
     if(soil_moisture <= 250) {
       move_z(z_top/4);
-      Run_Water_For_Time(4000);
+      Run_Water_For_Time(3000);
     }
 
-    Serial.println("ok C: r" + String(locations[i][0]) + " t" + String(locations[i][1]) + " z" + String(0));
+    Serial.println("ok C: r:" + String(locations[i][0]) + " t:" + String(locations[i][1]) + " z:" + String(0));
 
   }
+}
+
+///
+/// Demo code to show planting
+///
+void demo_seed(){
+  int theta = -1, radius = -1;
+  if(!isHomedR) Home_Radius();
+  if(!isHomedZ) Home_Z();
+  if(!isHomedT) Home_Theta();
+  for (int i = 0; i < 3; i++){
+    if (paramArray[i][0] == 'T'){
+      theta = getParameterValue(paramArray[i]);
+    }
+    if (paramArray[i][0] == 'R'){
+      radius = getParameterValue(paramArray[i]);
+    }
+  }
+  move_z(z_top);
+  move_theta(theta);
+  move_r(3500);
+  move_z(0);
+  vac(ON);
+  move_radius(radius);
+  move_z(0);
+  vac(OFF);
+  delay(3000);
+  move_z(z_top);
+  Serial.println("ok C: r:" + String(locations[i][0]) + " t:" + String(locations[i][1]) + " z:" + String(z_top));
 }
 

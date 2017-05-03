@@ -90,6 +90,9 @@ void loop() {
     else if (cmd == "DEMO"){  // run demo 
       demo();
     }
+    else if (cmd == "DEMOSEED"){  // run demo 
+      demo_seed(paramArray);
+    }
     else {                    // if not valid command, print invalid command
       Serial.println("Not a valid command. Enter Help for Commands.");
     }
