@@ -475,14 +475,14 @@ void demo(){
   if(!isHomedZ) Home_Z();
   if(!isHomedT) Home_Theta();
   for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
-    move_z(z_top/2);
+    move_z(z_top);
     move_theta(locations[i][1]);
     move_radius(locations[i][0]);
     move_z(0);
     int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
     delay(1000);
     if(soil_moisture <= 250) {
-      move_z(z_top/4);
+      move_z(4000);
       Run_Water_For_Time(3000);
     }
 
@@ -511,7 +511,7 @@ void demo_seed(String paramArray[]){
     move_z(z_top);
     move_theta(theta);
     move_radius(3500);
-    move_z(3900);
+    move_z(3700);
     vac(ON);
     delay(1000);
     move_z(z_top/2);
