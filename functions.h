@@ -472,18 +472,24 @@ void demo(){
   if(!isHomedT) Home_Theta();
   for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
     move_z(z_top);
+    Serial.println("ok C: z:" + String(z_top));
     move_theta(locations[i][1]);
+    Serial.println("ok C: t:" + String(locations[i][1]));
     move_radius(locations[i][0]);
+    Serial.println("ok C: r:" + String(locations[i][0]));
     move_z(0);
+    Serial.println("ok C: z:" + String(0));
     int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
+    Serial.println("SOIL READING: " + String(soil_moisture));
     delay(1000);
     if(soil_moisture <= 250) {
       move_z(4000);
+      Serial.println("ok C: z:" + String(4000));
       Run_Water_For_Time(3000);
     }
-    Serial.println("ok C: r:" + String(locations[i][0]) + " t:" + String(locations[i][1]) + " z:" + String(0));
   }
   move_z(z_top);
+  Serial.println("ok C: z:" + String(z_top));
 }
 
 ///
