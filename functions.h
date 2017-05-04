@@ -149,12 +149,6 @@ void R_Stepper_End(){
 /// move theta to destination_theta
 ///
 void move_theta(int destination_theta){
-//    Serial.print("Destination Theta: ");
-//    Serial.println(destination_theta);
-//    Serial.print("Current Theta: ");
-//    Serial.println(theta_current);
-//    Serial.print("Current Theta in degrees: ");
-//    Serial.println(theta_to_degrees());
     if (destination_theta > 180) destination_theta = 180;
     if (destination_theta < 0) destination_theta = 0;
     if (destination_theta < theta_to_degrees()){
@@ -193,7 +187,6 @@ void move_radius(int radius){
 void move_z(int z){
   detachInterrupt(digitalPinToInterrupt(ENCODER_A));
   detachInterrupt(digitalPinToInterrupt(ENCODER_B));
-  // seeds are at z:4000 r:3500
   if (z >= z_top) {
     Z_STEPPER.runToNewPosition(z_top);
   }
@@ -206,6 +199,9 @@ void move_z(int z){
     }
     else if (R_STEPPER.currentPosition() > 1750){
       Z_STEPPER.runToNewPosition(z_top);
+    }
+    else {
+      Z_STEPPER.runToNewPosition(z);
     }
   }
   attachInterrupt(digitalPinToInterrupt(ENCODER_A), rotation_read_clockwise, RISING);
