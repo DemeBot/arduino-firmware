@@ -161,6 +161,7 @@ void move_theta(int destination_theta){
       while (destination_theta > theta_to_degrees()){}
       DC_Motor_Stop();
     }
+    Serial.println("ok C: t:" + String(destination_theta));
 }
 
 ///
@@ -179,6 +180,7 @@ void move_radius(int radius){
   else {
     R_STEPPER.runToNewPosition(radius);
   }
+  Serial.println("ok C: r:" + String(radius));
 }
 
 ///
@@ -206,6 +208,7 @@ void move_z(int z){
   }
   attachInterrupt(digitalPinToInterrupt(ENCODER_A), rotation_read_clockwise, RISING);
   attachInterrupt(digitalPinToInterrupt(ENCODER_B), rotation_read_counter_clockwise, RISING);
+  Serial.println("ok C: z:" + String(z));
 }
 
 ///
