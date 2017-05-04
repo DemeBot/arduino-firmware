@@ -32,7 +32,7 @@ volatile float theta_current = 0; // This variable will increase or decrease dep
 String dc_direction = "STOP";
 
 // { r, theta }
-float locations[][2] = {
+float doubleSweep[][2] = {
   {100, 175}, 
   {100, 135},
   {100, 90},
@@ -43,4 +43,18 @@ float locations[][2] = {
   {1750, 90},
   {1750, 135},
   {1750, 175}
+};
+
+// { r, theta }
+float singleSweep[][2] = {
+  {100, 175},
+  {1750, 175}, 
+  {1750, 135},
+  {100, 135},
+  {100, 90},
+  {1750, 90},
+  {1750, 45},
+  {100, 45},
+  {100, 5},
+  {1750, 5}
 };

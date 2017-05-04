@@ -467,32 +467,49 @@ void Run_Water_For_Time(int timer){
 }
 
 ///
-/// Demo code that runs to each plot position
+/// Demo code that runs to each plot position in two sweeps
 ///
-void demo(){
+void demo_double(){
   if(!isHomedR) Home_Radius();
   if(!isHomedZ) Home_Z();
   if(!isHomedT) Home_Theta();
-  for( unsigned int i = 0; i < sizeof(locations)/sizeof(locations[0]); i+=1 ){
+  for( unsigned int i = 0; i < sizeof(doubleSweep)/sizeof(doubleSweep[0]); i+=1 ){
     move_z(z_top);
-    Serial.println("ok C: z:" + String(z_top));
-    move_theta(locations[i][1]);
-    Serial.println("ok C: t:" + String(locations[i][1]));
-    move_radius(locations[i][0]);
-    Serial.println("ok C: r:" + String(locations[i][0]));
+    move_theta(doubleSweep[i][1]);
+    move_radius(doubleSweep[i][0]);
     move_z(0);
-    Serial.println("ok C: z:" + String(0));
     int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
     Serial.println("SOIL READING: " + String(soil_moisture));
     delay(1000);
     if(soil_moisture <= 250) {
       move_z(4000);
-      Serial.println("ok C: z:" + String(4000));
       Run_Water_For_Time(3000);
     }
   }
   move_z(z_top);
-  Serial.println("ok C: z:" + String(z_top));
+}
+
+///
+/// Demo code that runs to each plot position in one sweep
+///
+void demo_single(){
+  if(!isHomedR) Home_Radius();
+  if(!isHomedZ) Home_Z();
+  if(!isHomedT) Home_Theta();
+  for( unsigned int i = 0; i < sizeof(singleSweep)/sizeof(singleSweep[0]); i+=1 ){
+    move_z(z_top);
+    move_theta(singleSweep[i][1]);
+    move_radius(singleSweep[i][0]);
+    move_z(0);
+    int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
+    Serial.println("SOIL READING: " + String(soil_moisture));
+    delay(1000);
+    if(soil_moisture <= 250) {
+      move_z(4000);
+      Run_Water_For_Time(3000);
+    }
+  }
+  move_z(z_top);
 }
 
 ///
@@ -524,7 +541,6 @@ void demo_seed(String paramArray[]){
     vac(OFF);
     delay(3000);
     move_z(z_top);
-    Serial.println("ok C: r:" + String(radius) + " t:" + String(theta) + " z:" + String(z_top));
   }
 }
 

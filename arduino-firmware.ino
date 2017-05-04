@@ -87,8 +87,14 @@ void loop() {
     else if (cmd == "HELP"){  // print all commands 
       Print_Commands();
     }
+    else if (cmd == "DEMOSINGLE"){  // run demo 
+      demo_single();
+    }
+    else if (cmd == "DEMODOUBLE"){  // run demo 
+      demo_double();
+    }
     else if (cmd == "DEMO"){  // run demo 
-      demo();
+      demo_double();
     }
     else if (cmd == "DEMOSEED"){  // run demo 
       demo_seed(paramArray);
