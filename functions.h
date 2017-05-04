@@ -481,10 +481,9 @@ void demo(){
       move_z(4000);
       Run_Water_For_Time(3000);
     }
-
     Serial.println("ok C: r:" + String(locations[i][0]) + " t:" + String(locations[i][1]) + " z:" + String(0));
-
   }
+  move_z(z_top);
 }
 
 ///
