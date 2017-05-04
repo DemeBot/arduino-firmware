@@ -161,7 +161,7 @@ void move_theta(int destination_theta){
       while (destination_theta > theta_to_degrees()){}
       DC_Motor_Stop();
     }
-    Serial.println("ok C: t:" + String(destination_theta));
+    Serial.println("ok C: r:" + String(R_STEPPER.currentPosition()) + " t:" + String(theta_to_degrees()) + " z:" + String(Z_STEPPER.currentPosition()));
 }
 
 ///
@@ -180,7 +180,7 @@ void move_radius(int radius){
   else {
     R_STEPPER.runToNewPosition(radius);
   }
-  Serial.println("ok C: r:" + String(radius));
+  Serial.println("ok C: r:" + String(R_STEPPER.currentPosition()) + " t:" + String(theta_to_degrees()) + " z:" + String(Z_STEPPER.currentPosition()));
 }
 
 ///
@@ -208,7 +208,7 @@ void move_z(int z){
   }
   attachInterrupt(digitalPinToInterrupt(ENCODER_A), rotation_read_clockwise, RISING);
   attachInterrupt(digitalPinToInterrupt(ENCODER_B), rotation_read_counter_clockwise, RISING);
-  Serial.println("ok C: z:" + String(z));
+  Serial.println("ok C: r:" + String(R_STEPPER.currentPosition()) + " t:" + String(theta_to_degrees()) + " z:" + String(Z_STEPPER.currentPosition()));
 }
 
 ///
@@ -496,20 +496,39 @@ void demo_single(){
   if(!isHomedR) Home_Radius();
   if(!isHomedZ) Home_Z();
   if(!isHomedT) Home_Theta();
-  for( unsigned int i = 0; i < sizeof(singleSweep)/sizeof(singleSweep[0]); i+=1 ){
-    move_z(z_top);
-    move_theta(singleSweep[i][1]);
-    move_radius(singleSweep[i][0]);
-    move_z(0);
-    int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
-    Serial.println("SOIL READING: " + String(soil_moisture));
-    delay(1000);
-    if(soil_moisture <= 250) {
-      move_z(4000);
-      Run_Water_For_Time(3000);
+  int positionCount = sizeof(singleSweep)/sizeof(singleSweep[0]);
+  if (theta_to_degrees() < 90){
+    for( unsigned int i = positionCount-1; i >= 0; i-=1 ){
+      move_z(z_top);
+      move_theta(singleSweep[i][1]);
+      move_radius(singleSweep[i][0]);
+      move_z(0);
+      int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
+      Serial.println("SOIL READING: " + String(soil_moisture));
+      delay(1000);
+      if(soil_moisture <= 250) {
+        move_z(4000);
+        Run_Water_For_Time(3000);
+      }
     }
+    move_z(z_top);
   }
-  move_z(z_top);
+  else {
+    for( unsigned int i = 0; i < sizeof(singleSweep)/sizeof(singleSweep[0]); i+=1 ){
+      move_z(z_top);
+      move_theta(singleSweep[i][1]);
+      move_radius(singleSweep[i][0]);
+      move_z(0);
+      int soil_moisture = analogRead(soilSensorPin);  // read from analog pin A3
+      Serial.println("SOIL READING: " + String(soil_moisture));
+      delay(1000);
+      if(soil_moisture <= 250) {
+        move_z(4000);
+        Run_Water_For_Time(3000);
+      }
+    }
+    move_z(z_top);
+  }
 }
 
 ///
